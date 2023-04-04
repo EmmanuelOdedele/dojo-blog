@@ -1,7 +1,13 @@
 <template>
   <div class="home">
     <h1>Home</h1>
-    <PostList :posts="posts" />
+    <div v-if="error">{{ error }}</div>
+    <div v-if="posts.length">
+      <PostList v-if="showPosts" :posts="posts" />
+    </div>
+    <div v-else>Loading..</div>
+    <button @click="showPosts = !showPosts">toggle posts</button>
+    <button @click="posts.pop()">delete a post</button>
 
     <!-- <p>My name is {{ name }} and my age is {{ age }}</p>
     <button @click="handleClick">Click Me</button>
@@ -71,10 +77,24 @@ export default {
     // })
 
     // for props
-    const posts = ref([
-      { title: "welcome to the blog", body: "Lorem ipsum", id: 1 },
-      { title: "top 5 CSS tips", body: "Lorem ipsum", id: 2 },
-    ]);
+    const posts = ref([]);
+    const showPosts = ref(true);
+    const error = ref(null);
+
+    const load = async () => {
+      try {
+        let data = await fetch("http://localhost:3000/posts");
+        if (!data.ok) {
+          throw Error("no data available");
+        }
+        posts.value = await data.json();
+      } catch (err) {
+        error.value = err.message;
+        console.log(error.value);
+      }
+    };
+
+    load();
 
     return {
       // name,
@@ -89,6 +109,8 @@ export default {
       // matchingNames
 
       posts,
+      showPosts,
+      error,
     };
   },
 };
