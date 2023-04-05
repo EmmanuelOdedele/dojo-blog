@@ -6,7 +6,10 @@
       <PostList v-if="showPosts" :posts="posts" />
     </div>
     <div v-else>Loading..</div>
-    <button @click="showPosts = !showPosts">toggle posts</button>
+    <button @click="showPosts = !showPosts">
+      <span v-if="!showPosts">show posts</span>
+      <span v-else>hide posts</span>
+    </button>
     <button @click="posts.pop()">delete a post</button>
 
     <!-- <p>My name is {{ name }} and my age is {{ age }}</p>
@@ -31,8 +34,10 @@
 </template>
 
 <script>
-import { ref, reactive, computed, watch } from "vue";
+// import { ref, reactive, computed, watch } from "vue";
+import { ref } from "vue";
 import PostList from "../components/PostList.vue";
+import getPosts from '../composables/getPosts'
 
 export default {
   name: "Home",
@@ -77,24 +82,30 @@ export default {
     // })
 
     // for props
-    const posts = ref([]);
     const showPosts = ref(true);
-    const error = ref(null);
 
-    const load = async () => {
-      try {
-        let data = await fetch("http://localhost:3000/posts");
-        if (!data.ok) {
-          throw Error("no data available");
-        }
-        posts.value = await data.json();
-      } catch (err) {
-        error.value = err.message;
-        console.log(error.value);
-      }
-    };
+    const {posts, error, load} = getPosts()
 
-    load();
+    load()
+   
+    // items down here used for composables
+    // const posts = ref([]);
+    // const error = ref(null);
+
+    // const load = async () => {
+    //   try {
+    //     let data = await fetch("http://localhost:3000/posts");
+    //     if (!data.ok) {
+    //       throw Error("no data available");
+    //     }
+    //     posts.value = await data.json();
+    //   } catch (err) {
+    //     error.value = err.message;
+    //     console.log(error.value);
+    //   }
+    // };
+
+    // load();
 
     return {
       // name,
